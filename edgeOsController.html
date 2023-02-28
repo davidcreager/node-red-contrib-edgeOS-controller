@@ -1,0 +1,25 @@
+<script type="text/javascript">
+    RED.nodes.registerType('edgeOS-controller',{
+        category: 'network',
+        color: "rgb(215, 200, 160)",
+        defaults: {
+            name: {value:""}
+        },
+        inputs:1,
+        outputs:1,
+        icon: "white-globe.svg",
+        label: function() {
+            return this.name||"edgeOS-controller";
+        }
+    });
+</script>
+<script type="text/html" data-template-name="edgeOS-controller">
+    <div class="form-row">
+        <label for="node-input-name"><i class="fa fa-tag"></i> Name</label>
+        <input type="text" id="node-input-name" placeholder="Name">
+    </div>
+</script>
+
+<script type="text/html" data-help-name="edgeOS-controller">
+    <p>Node to interact with edgeOS that is controlled by input message payloads eg. msg.payload.command = "connect|disconnect"  msg.payload.url = "ws://xxxxx"</p>
+</script>
