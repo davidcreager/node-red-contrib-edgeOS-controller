@@ -79,17 +79,23 @@ module.exports = function(RED) {
 							devs[key].status = "Dropped";
 							devs[key].changed = true;
 						} else if (newDevices[key]) {
-							devs[key].eventType = "Refreshed";
-							if (newDevices[key].ip != devs[key].ip) {
-								devs[key].eventType = "IP Changed";
-								devs[key].ip = newDevices[key].ip;
+							let newEventType = null;
+							if (devs[key].eventType == "Dropped") {
+								newEventType = "Re-appeared";
 								devs[key].changed = true;
 							}
 							if (newDevices[key].hostname != devs[key].hostname){
-								devs[key].eventType = "Hostname Changed";
+								newEventType = (!newEventType) ? "Hostname Changed" : newEventType + ", Hostname Changed";
 								devs[key].hostname = newDevices[key].hostname;	
 								devs[key].changed = true;
 							}
+							if (newDevices[key].ip != devs[key].ip) {
+								devs[key].eventType = "IP Changed";
+								newEventType = (!newEventType) ? "IP Changed" : newEventType + ", IP Changed";
+								devs[key].ip = newDevices[key].ip;
+								devs[key].changed = true;
+							}
+							devs[key].eventType = newEventType || "Refreshed";
 						}
 						return devs;
 					}, this.devices );
