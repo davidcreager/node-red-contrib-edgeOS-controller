@@ -14,7 +14,7 @@ module.exports = function(RED) {
 			}
 			this.edgeOSServer = new EdgeOS({username: user, password: password, 		refreshPeriod:30});
 			this.edgeOSServer.on("devices", (data) => { node.send({topic: "edgeOS/onDevices", payload: data}) });
-			this.edgeOSServer.on("error", (err) => { node.error("[" + node.name + "][edgeOSServer][onError] Error Caught" + er) });
+			this.edgeOSServer.on("error", (err) => { node.error("[edgeOS-controller][edgeOSServer][onError] Error Caught" + er) });
 			this.devices = {};
 			try {
 				const tmp = await this.edgeOSServer.init();
@@ -25,7 +25,7 @@ module.exports = function(RED) {
 				this.connected = true;
 			} catch (er) {
 				debugMsg = "[connect] Error Caught " + er
-				node.error("[" + node.name + "]" + debugMsg);
+				node.error("[edgeOS-controller]" + debugMsg);
 				node.status({fill: "red", shape: "ring", text: debugMsg});
 				return null;
 			}
@@ -37,7 +37,7 @@ module.exports = function(RED) {
 			const validCommands = ["connect", "disconnect", "refreshHostNames", "listDevices"];
 			if ( ( typeof(msg.payload) != "object"  || !msg.payload.hasOwnProperty("cmd")  || !validCommands.includes(msg.payload.cmd) ) && !validCommands.includes(msg.payload) ) {
 				debugMsg = "[onInput][init] Invalid Payload " + msg.payload
-				node.error(["[" + node.name + "]" + debugMsg + " should be " + validCommands.join("|"), msg ] );
+				node.error(["[edgeOS-controller]" + debugMsg + " should be " + validCommands.join("|"), msg ] );
 				node.status({fill: "red", shape: "ring", text: debugMsg});
 				return null;
 			}
@@ -45,7 +45,7 @@ module.exports = function(RED) {
 			if ( cmd == "connect" ) {
 				if (!msg.password || !msg.user || !msg.ip) {
 					debugMsg = "[onInput][" + cmd + "]" + " requires msg.password, msg.user and msg.baseURL to be set"
-					node.error(["[" + node.name + "]" + debugMsg, msg ] );
+					node.error(["[edgeOS-controller]" + debugMsg, msg ] );
 					node.status({fill: "red", shape: "ring", text: debugMsg});
 					return null;
 				}
@@ -55,7 +55,7 @@ module.exports = function(RED) {
 				if (!this.connected) {
 					if (!msg.password || !msg.user || !msg.ip) {
 						debugMsg = "[onInput][" + cmd + "]" + " Not connected";
-						node.error(["[" + node.name + "]" + debugMsg, msg ] );
+						node.error(["[edgeOS-controller]" + debugMsg, msg ] );
 						node.status({fill: "red", shape: "ring", text: debugMsg});
 						return null;
 					}
@@ -63,7 +63,7 @@ module.exports = function(RED) {
 					const connectedResult = await this.connect(msg.ip, msg.user, msg.password);
 					if (!this.connected || !connectedResult) {
 						debugMsg = "[" + cmd + "]" + " Not connected";
-						node.error(["[" + node.name + "]" + debugMsg, msg ] );
+						node.error(["[edgeOS-controller]" + debugMsg, msg ] );
 						node.status({fill: "red", shape: "ring", text: debugMsg});
 						return null;
 					}
@@ -112,7 +112,7 @@ module.exports = function(RED) {
 					}, this.devices );
 				} catch (er) {
 					debugMsg = "[" + cmd + "]" + " Error caught " + er;
-					node.error(["[" + node.name + "]" + debugMsg, msg ] );
+					node.error(["[edgeOS-controller]" + debugMsg, msg ] );
 					node.status({fill: "red", shape: "ring", text: debugMsg});
 					return null
 				}
@@ -122,7 +122,7 @@ module.exports = function(RED) {
 			} else if ( cmd == "disconnect" ) {
 				if (!this.edgeOSServer) {
 					debugMsg = "[onInput][" + cmd + "]" + " Not connected";
-					node.error(["[" + node.name + "]" + debugMsg, msg ] );
+					node.error(["[edgeOS-controller]" + debugMsg, msg ] );
 					node.status({fill: "red", shape: "ring", text: debugMsg});
 					return null
 				}
@@ -135,10 +135,10 @@ module.exports = function(RED) {
         });
 		node.on('close', async function(removed, done) {
 			if (this.edgeOSServer) {
-				node.warn("[" + node.name + "][onClose] Closing EdgeOSServer");
-				try { await this.edgeOSServer.close() } catch (er) { node.error("[" + node.name + "][onClose] Error Caught" + er) }
+				node.warn("[edgeOS-controller][onClose] Closing EdgeOSServer");
+				try { await this.edgeOSServer.close() } catch (er) { node.error("[edgeOS-controller][onClose] Error Caught" + er) }
 			} else {
-					node.warn("[" + node.name + "][onClose]" + "EdgeOSServer does not exist so no need to close")
+					node.warn("[edgeOS-controller][onClose]" + "EdgeOSServer does not exist so no need to close")
 			}
 			done();
 		});
